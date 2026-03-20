@@ -1,0 +1,17 @@
+{
+  "name": "interview-ace-portal",
+  "version": "1.0.0",
+  "description": "Interview Preparation Portal",
+  "scripts": {
+    "start": "node server/server.js",
+    "server": "nodemon server/server.js",
+    "client": "npm run dev --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "install-all": "npm install concurrently && cd server && npm install && cd ../client && npm install"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
