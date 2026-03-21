@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Interview Preparation Portal",
   "scripts": {
+    "postinstall": "cd server && npm install",
     "start": "node server/server.js",
     "server": "nodemon server/server.js",
     "client": "npm run dev --prefix client",
