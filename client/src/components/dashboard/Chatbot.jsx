@@ -27,7 +27,7 @@ export default function Chatbot() {
     setLoading(true);
 
     try {
-      const res = await axios.post('http://localhost:5000/api/chat', { message: userMessage });
+      const res = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/chat`, { message: userMessage });
       setMessages(prev => [...prev, { sender: 'bot', text: res.data.reply }]);
     } catch (err) {
       setMessages(prev => [...prev, { sender: 'bot', text: 'Error: Could not connect to AI server.' }]);

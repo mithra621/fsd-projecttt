@@ -13,7 +13,7 @@ export default function Resources() {
 
   const fetchResources = async () => {
     try {
-      const { data } = await axios.get('http://localhost:5000/api/resources');
+      const { data } = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/resources`);
       setResources(data);
     } catch (error) {
       console.error('Error fetching resources:', error);

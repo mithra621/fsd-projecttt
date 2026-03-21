@@ -22,7 +22,7 @@ export default function AdminPanel() {
   const handleResourceSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/resources', {
+      await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/resources`, {
         title: resTitle,
         category: resCategory,
         link: resLink,
@@ -38,7 +38,7 @@ export default function AdminPanel() {
   const handleQuizSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/quiz', {
+      await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/quiz`, {
         title: quizTitle,
         category: quizCategory,
         timeLimitMinutes: quizTime,

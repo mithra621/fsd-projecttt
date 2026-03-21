@@ -12,7 +12,7 @@ export default function QuizList() {
 
   const fetchQuizzes = async () => {
     try {
-      const { data } = await axios.get('http://localhost:5000/api/quiz');
+      const { data } = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/quiz`);
       setQuizzes(data);
     } catch (error) {
       console.error('Error fetching quizzes:', error);

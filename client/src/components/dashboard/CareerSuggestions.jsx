@@ -24,7 +24,7 @@ export default function CareerSuggestions() {
     setLoading(true);
     try {
       const skillsArray = skillsStr.split(',').map(s => s.trim()).filter(Boolean);
-      const { data } = await axios.post('http://localhost:5000/api/career/suggest', { skills: skillsArray });
+      const { data } = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/career/suggest`, { skills: skillsArray });
       setSuggestions(data.suggestions);
     } catch (error) {
       console.error('Error fetching career suggestions:', error);
@@ -39,7 +39,7 @@ export default function CareerSuggestions() {
     try {
       const promptText = `Generate a clear, step-by-step career roadmap for becoming a ${suggestion.role}. I already know these skills: ${suggestion.matchedSkills.join(', ')}. I urgently need to learn these missing skills: ${suggestion.missingSkills.join(', ')}. Format the roadmap in clean Markdown. Keep it actionable and highly structured.`;
       
-      const { data } = await axios.post('http://localhost:5000/api/chat', { message: promptText });
+      const { data } = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/chat`, { message: promptText });
       setActiveRoadmap(data.reply);
     } catch (error) {
        console.error("Roadmap HTTP Request error:", error);

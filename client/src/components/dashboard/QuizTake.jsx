@@ -30,7 +30,7 @@ export default function QuizTake() {
 
   const fetchQuiz = async () => {
     try {
-      const { data } = await axios.get(`http://localhost:5000/api/quiz/${id}`);
+      const { data } = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/quiz/${id}`);
       setQuiz(data);
       setTimeLeft(data.timeLimitMinutes * 60);
     } catch (error) {
@@ -42,7 +42,7 @@ export default function QuizTake() {
     setIsFinished(true);
     const answersArray = quiz.questions.map((_, i) => answers[i] || '');
     try {
-      const { data } = await axios.post(`http://localhost:5000/api/quiz/submit`, {
+      const { data } = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/quiz/submit`, {
         quizId: id,
         answers: answersArray
       });

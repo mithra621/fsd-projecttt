@@ -35,7 +35,7 @@ export default function ProgressCharts() {
 
   const fetchHistory = async () => {
     try {
-      const { data } = await axios.get('http://localhost:5000/api/resume');
+      const { data } = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/resume`);
       setResumeHistory(data.reverse()); // Chronological 
     } catch (error) {
       console.error('Error fetching progress:', error);
