@@ -48,7 +48,8 @@ const processChat = async (req, res) => {
     res.json({ reply: botReply });
     
   } catch (error) {
-    res.status(500).json({ reply: 'Sorry, my AI core crashed. Please check the backend logs.' });
+    console.error("Backend LLM Chat Controller Crashed:", error);
+    res.status(500).json({ reply: `Sorry, my AI core crashed: ${error.message}` });
   }
 };
 

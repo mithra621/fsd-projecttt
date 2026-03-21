@@ -42,8 +42,9 @@ export default function CareerSuggestions() {
       const { data } = await axios.post('http://localhost:5000/api/chat', { message: promptText });
       setActiveRoadmap(data.reply);
     } catch (error) {
-       console.error("Roadmap error:", error);
-       setActiveRoadmap("Sorry, I encountered an error while generating your roadmap. Please try again later.");
+       console.error("Roadmap HTTP Request error:", error);
+       const errorText = error?.response?.data?.reply || error?.message || "Unknown Network Error";
+       setActiveRoadmap(`Oops, the Roadmap API encountered a problem:\n\n${errorText}\n\nMake sure your server is running and the Gemini API key is correct!`);
     } finally {
       setGeneratingRoadmap(false);
     }

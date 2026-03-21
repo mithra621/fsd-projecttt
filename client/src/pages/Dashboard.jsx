@@ -30,7 +30,7 @@ function Sidebar({ isOpen, setIsOpen, user }) {
   }
 
   return (
-    <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-lg transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300 ease-in-out`}>
+    <div className={`fixed inset-y-0 left-0 z-50 w-64 glass dark:glass-dark border-r border-white/20 shadow-2xl transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col`}>
       <div className="flex items-center justify-center mt-8">
         <div className="flex items-center">
           <span className="text-white text-2xl mx-2 font-semibold dark:text-white">Interview Ace</span>
@@ -41,8 +41,8 @@ function Sidebar({ isOpen, setIsOpen, user }) {
           const isActive = location.pathname === item.path || (item.path !== '/dashboard' && location.pathname.startsWith(item.path));
           return (
             <Link key={item.name} to={item.path} onClick={() => setIsOpen(false)}
-                  className={`flex items-center mt-4 py-2 px-6 ${isActive ? 'bg-gray-200 dark:bg-gray-700 bg-opacity-25 text-indigo-600 dark:text-indigo-400' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:bg-opacity-25'}`}>
-              {item.icon}
+                  className={`flex items-center mx-4 my-2 py-3 px-4 rounded-xl transition-all duration-300 ${isActive ? 'bg-indigo-500/15 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 font-bold shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-500/10 hover:text-slate-900 dark:hover:text-slate-200 hover:translate-x-1'}`}>
+              <div className={`${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300'} transition-colors`}>{item.icon}</div>
               <span className="mx-3">{item.name}</span>
             </Link>
           )
@@ -58,18 +58,22 @@ export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-gray-900 transition-colors">
+    <div className="flex h-screen bg-slate-50 dark:bg-[#0B0F19] transition-colors relative overflow-hidden">
+      {/* Dynamic Background Blurs for Dashboard */}
+      <div className="absolute -top-40 -left-40 w-96 h-96 bg-purple-400/20 dark:bg-purple-600/10 rounded-full mix-blend-multiply filter blur-3xl animate-blob pointer-events-none"></div>
+      <div className="absolute top-40 -right-20 w-96 h-96 bg-indigo-400/20 dark:bg-indigo-600/10 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000 pointer-events-none"></div>
+      
       <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} user={user} />
       
-      <div className="flex-1 flex flex-col overflow-hidden lg:ml-64">
-        <header className="flex justify-between items-center py-4 px-6 bg-white dark:bg-gray-800 shadow-sm">
+      <div className="flex-1 flex flex-col overflow-hidden relative z-10 lg:ml-64">
+        <header className="flex justify-between items-center py-4 px-6 glass dark:glass-dark border-b border-white/20 sticky top-0 z-40 backdrop-blur-2xl">
           <div className="flex items-center">
-            <button onClick={() => setSidebarOpen(true)} className="text-gray-500 focus:outline-none lg:hidden">
+            <button onClick={() => setSidebarOpen(true)} className="text-gray-500 hover:text-indigo-500 focus:outline-none lg:hidden transition-colors">
               <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M4 6H20M4 12H20M4 18H11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </button>
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-white lg:ml-0 ml-4">Dashboard</h2>
+            <h2 className="text-xl font-bold text-slate-800 dark:text-white lg:ml-0 ml-4 tracking-tight">Dashboard</h2>
           </div>
           <div className="flex items-center gap-4">
             <button onClick={toggleTheme} className="text-gray-600 dark:text-gray-300 hover:text-indigo-600">
@@ -82,7 +86,7 @@ export default function Dashboard() {
           </div>
         </header>
         
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 dark:bg-gray-900 p-6">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-transparent p-6 relative">
           <Routes>
             <Route path="/" element={<Resources />} />
             <Route path="/quizzes" element={<QuizList />} />
