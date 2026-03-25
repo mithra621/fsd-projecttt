@@ -22,45 +22,38 @@ const uploadResume = async (req, res) => {
     const pdfData = await pdfParse(dataBuffer);
     const extractedText = pdfData.text.toLowerCase();
 
-    // Import our newly created Machine Learning Engine
-    const { getFeatureVector, getCosineSimilarity } = require('../utils/mlEngine');
+    // Import our advanced TF-IDF Machine Learning Engine
+    const tfIdfScorer = require('../utils/tfIdfResumeScorer');
 
     const userSkills = req.user.skills ? req.user.skills.map(s => s.toLowerCase()) : [];
     const combinedText = extractedText + " " + userSkills.join(" ");
     
-    // ML Feature Selection: Define the vocabulary dimension space across all jobs
-    const globalVocabulary = Array.from(new Set(Object.values(jobRoles).flat()));
-    
-    // Geometrically map the User's Resume into an N-dimensional Vector
-    const resumeVector = getFeatureVector(combinedText, globalVocabulary);
-    
     let bestRole = 'General Developer';
-    let maxSimilarity = 0;
+    let maxScore = 0;
     let finalMatched = [];
     let finalMissing = [];
     
     for (const [role, skills] of Object.entries(jobRoles)) {
-      // Map each Job's distinct requirements into the same N-dimensional Space
       const roleText = skills.join(" ");
-      const roleVector = getFeatureVector(roleText, globalVocabulary);
       
-      // Calculate ML Cosine Similarity
-      const similarity = getCosineSimilarity(resumeVector, roleVector);
+      // Calculate ML Cosine Similarity using TF-IDF (Returns 0-100)
+      const score = tfIdfScorer.calculateScore(combinedText, roleText);
       
       const matched = skills.filter(skill => combinedText.includes(skill));
       
-      if (similarity > maxSimilarity) {
-        maxSimilarity = similarity;
+      if (score > maxScore) {
+        maxScore = score;
         bestRole = role;
         finalMatched = matched;
         finalMissing = skills.filter(skill => !combinedText.includes(skill));
       }
     }
     
-    // Normalize the [0.0 - 1.0] scalar into a human readable [0% - 100%] curve
-    let score = Math.round(maxSimilarity * 100 * 1.5);
+    // Scale the baseline score slightly for better user experience 
+    // (TF-IDF strict matching yields natively lower absolute values)
+    let score = Math.round(maxScore * 1.8);
     if (score > 100) score = 100;
-    if (score < 15) score = 15;
+    if (score < 15 && maxScore > 0) score = 15;
 
     const resumeData = await ResumeData.create({
       userId: req.user._id,
