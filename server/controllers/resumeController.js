@@ -1,4 +1,4 @@
-const pdfParse = require('pdf-parse');
+const { PDFParse } = require('pdf-parse');
 const ResumeData = require('../models/ResumeData');
 
 // Mock Jobs and their Required Keywords
@@ -17,9 +17,10 @@ const uploadResume = async (req, res) => {
       return res.status(400).json({ message: 'Please upload a file' });
     }
 
-    // Extract text from PDF
+    // Extract text from PDF using pdf-parse v2+
     const dataBuffer = req.file.buffer;
-    const pdfData = await pdfParse(dataBuffer);
+    const parser = new PDFParse({ data: dataBuffer });
+    const pdfData = await parser.getText();
     const extractedText = pdfData.text.toLowerCase();
 
     // Import our advanced TF-IDF Machine Learning Engine

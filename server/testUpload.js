@@ -1,11 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const mongoose = require('mongoose');
-const User = require('./models/User');
-const jwt = require('jsonwebtoken');
-require('dotenv').config();
 
-// Create a valid dummy PDF string (minimal valid PDF)
 const dummyPdfContent = `%PDF-1.4
 1 0 obj
 << /Type /Catalog /Pages 2 0 R >>
@@ -39,64 +34,69 @@ startxref
 429
 %%EOF`;
 
-async function testUpload() {
+async function testLiveBackend() {
   try {
-    // 1. Connect to DB
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log("Connected to MongoDB");
-
-    // 2. Create or get test user
-    let user = await User.findOne({ email: 'test_upload@example.com' });
-    if (!user) {
-      user = await User.create({
-        name: 'Test Uploader',
-        email: 'test_upload@example.com',
+    const API_URL = 'https://fsd-projecttt-backend.onrender.com';
+    
+    // 1. Register a dummy user to get a real token from the LIVE DB
+    console.log("Registering test user on Live API...");
+    const email = `test_live_${Date.now()}@example.com`;
+    const regRes = await fetch(`${API_URL}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Test Live',
+        email,
         password: 'password123',
         skills: ['React', 'Node']
-      });
+      })
+    });
+    
+    if (!regRes.ok) {
+      const err = await regRes.text();
+      throw new Error(`Registration failed: ${regRes.status} ${err}`);
     }
+    const userData = await regRes.json();
+    const token = userData.token;
+    console.log("Got Live Token:", token.substring(0, 10) + '...');
 
-    // 3. Generate Token
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    console.log("Token generated");
-
-    // 4. Create dummy PDF file
-    const pdfPath = path.join(__dirname, 'dummy_test.pdf');
+    // 2. Create dummy PDF file
+    const pdfPath = path.join(__dirname, 'dummy_live.pdf');
     fs.writeFileSync(pdfPath, dummyPdfContent);
 
-    // 5. Build FormData (native)
+    // 3. Build native FormData
     const form = new FormData();
     const blob = new Blob([fs.readFileSync(pdfPath)], { type: 'application/pdf' });
-    form.append('resume', blob, 'dummy_test.pdf');
+    form.append('resume', blob, 'resume.pdf');
 
-    console.log("Sending POST request to http://localhost:5000/api/resume/upload ...");
-
-    // 6. Make request
-    const response = await fetch('http://localhost:5000/api/resume/upload', {
+    // 4. Hit the resume upload endpoint on LIVE
+    console.log(`Sending POST request to ${API_URL}/api/resume/upload ...`);
+    
+    const uploadRes = await fetch(`${API_URL}/api/resume/upload`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`
-        // FormData boundary headers are automatically set by fetch
       },
       body: form
     });
 
-    if (!response.ok) {
-        throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+    const responseText = await uploadRes.text();
+    
+    if (!uploadRes.ok) {
+      throw new Error(`Upload Failed: ${uploadRes.status} -> ${responseText}`);
     }
 
-    const data = await response.json();
-    console.log("SUCCESS! Response Data:");
-    console.log(data);
+    console.log("SUCCESS! Live Response:");
+    console.log(responseText);
 
     // Cleanup
     fs.unlinkSync(pdfPath);
     process.exit(0);
   } catch (error) {
-    console.error("FAILED!");
-    console.error(error);
+    console.error("FAILED LIVE TEST!");
+    console.error(error.message);
     process.exit(1);
   }
 }
 
-testUpload();
+testLiveBackend();
